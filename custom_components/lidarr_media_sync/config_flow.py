@@ -5,6 +5,7 @@ from __future__ import annotations
 import logging
 from collections.abc import Mapping
 from typing import Any
+from urllib.parse import urlparse
 
 import voluptuous as vol
 from homeassistant.config_entries import (
@@ -65,6 +66,33 @@ def _split_list(value: Any, default: list[str] | None = None) -> list[str]:
     if isinstance(value, (list, tuple)):
         return [str(part).strip() for part in value if str(part).strip()]
     return list(default or [])
+
+
+def _default_lidarr_url(hass: HomeAssistant) -> str:
+    """Guess Lidarr on Home Assistant's own host instead of hardcoding an IP.
+
+    Many installations run Lidarr next to Home Assistant. Deriving the host
+    from HA's internal URL avoids shipping a personal LAN address in the code
+    while still prefilling a useful value. The user can always edit the field.
+    """
+    try:
+        from homeassistant.helpers.network import get_url
+
+        internal_url = get_url(
+            hass,
+            allow_external=False,
+            allow_cloud=False,
+            prefer_external=False,
+        )
+    except Exception:  # noqa: BLE001 - any failure should fall back
+        return DEFAULT_URL
+
+    host = urlparse(internal_url).hostname
+    if not host:
+        return DEFAULT_URL
+    if ":" in host:
+        host = f"[{host}]"
+    return f"http://{host}:8686"
 
 
 def _profile_options(profiles: list[dict[str, Any]]) -> list[selector.SelectOptionDict]:
@@ -307,7 +335,9 @@ class LidarrMediaSyncConfigFlow(ConfigFlow, domain="lidarr_media_sync"):
             step_id="user",
             data_schema=vol.Schema(
                 {
-                    vol.Required(CONF_URL, default=DEFAULT_URL): selector.TextSelector(
+                    vol.Required(
+                        CONF_URL, default=_default_lidarr_url(self.hass)
+                    ): selector.TextSelector(
                         selector.TextSelectorConfig(type=selector.TextSelectorType.URL)
                     ),
                     vol.Required(CONF_API_KEY): selector.TextSelector(

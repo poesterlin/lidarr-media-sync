@@ -26,7 +26,7 @@ CONF_NOTIFY_ON_ADD = "notify_on_add"
 CONF_IGNORED_ARTISTS = "ignored_artists"
 
 # Defaults ----------------------------------------------------------------
-DEFAULT_URL = "http://YOUR-LIDARR-HOST:8686"
+DEFAULT_URL = "http://localhost:8686"
 DEFAULT_PACKAGES = ["com.google.android.apps.youtube.music"]
 DEFAULT_ONLY_WHEN_PLAYING = True
 DEFAULT_MIN_PLAY_SECONDS = 0
