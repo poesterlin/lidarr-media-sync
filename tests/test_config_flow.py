@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import voluptuous as vol
 from homeassistant import config_entries
 from homeassistant.data_entry_flow import FlowResultType
 from pytest_homeassistant_custom_component.common import MockConfigEntry
@@ -100,6 +101,36 @@ async def test_full_config_flow(hass, aioclient_mock):
     assert result["options"][CONF_PACKAGES] == ["com.google.android.apps.youtube.music"]
     assert result["options"][CONF_QUALITY_PROFILE_ID] == 2
     assert result["options"][CONF_METADATA_PROFILE_ID] == 1
+    assert result["options"][CONF_IGNORED_ARTISTS] == []
+
+
+async def test_ignored_artists_is_optional(hass, aioclient_mock):
+    """The ignored-artist field may be left empty."""
+    hass.states.async_set(
+        ENTITY_ID,
+        "Playing",
+        {"artist_com.google.android.apps.youtube.music": "JENNIE"},
+    )
+    _mock_lidarr(aioclient_mock)
+
+    result = await hass.config_entries.flow.async_init(
+        DOMAIN, context={"source": config_entries.SOURCE_USER}
+    )
+    result = await hass.config_entries.flow.async_configure(
+        result["flow_id"],
+        {CONF_URL: BASE_URL, CONF_API_KEY: "secret-key"},
+    )
+    schema = result["data_schema"].schema
+    ignored_fields = [
+        key for key in schema if getattr(key, "schema", None) == CONF_IGNORED_ARTISTS
+    ]
+    assert len(ignored_fields) == 1
+    assert isinstance(ignored_fields[0], vol.Optional)
+
+    settings = _settings_input()
+    settings.pop(CONF_IGNORED_ARTISTS)
+    result = await hass.config_entries.flow.async_configure(result["flow_id"], settings)
+    assert result["type"] is FlowResultType.CREATE_ENTRY
     assert result["options"][CONF_IGNORED_ARTISTS] == []
 
 

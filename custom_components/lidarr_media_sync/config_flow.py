@@ -233,7 +233,7 @@ def _build_schema(
                 CONF_NOTIFY_ON_ADD,
                 default=bool(defaults.get(CONF_NOTIFY_ON_ADD, DEFAULT_NOTIFY_ON_ADD)),
             ): bool,
-            vol.Required(
+            vol.Optional(
                 CONF_IGNORED_ARTISTS,
                 default="\n".join(defaults.get(CONF_IGNORED_ARTISTS) or []),
             ): selector.TextSelector(selector.TextSelectorConfig(multiline=True)),
