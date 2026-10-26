@@ -1,0 +1,127 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Mit Lidarr verbinden",
+        "description": "Gib die Adresse deiner Lidarr-Instanz ein. Den API-Schlüssel findest du in Lidarr unter **Einstellungen → Allgemein → Sicherheit**.",
+        "data": {
+          "url": "Lidarr-URL",
+          "api_key": "API-Schlüssel"
+        }
+      },
+      "settings": {
+        "title": "Medienquelle und Standardwerte",
+        "description": "Wähle den **Media-session**-Sensor der Android-App oder eine beliebige `media_player`-Entität (Spotify, Music Assistant, Plex, Sonos, ...) und lege fest, wie Künstler zu Lidarr hinzugefügt werden.",
+        "data": {
+          "entity_id": "Medienquelle",
+          "packages": "Android-Pakete der Medien-Apps",
+          "only_when_playing": "Nur bei Wiedergabe",
+          "min_play_seconds": "Bestätigungsverzögerung",
+          "root_folder": "Stammordner",
+          "quality_profile_id": "Qualitätsprofil",
+          "metadata_profile_id": "Metadatenprofil",
+          "monitor": "Alben überwachen",
+          "search_missing_albums": "Nach fehlenden Alben suchen",
+          "match_strategy": "Künstlerabgleich",
+          "dry_run": "Trockenlauf",
+          "notify_on_add": "Benachrichtigung erstellen",
+          "ignored_artists": "Ignorierte Künstler"
+        },
+        "data_description": {
+          "entity_id": "Der Media-session-Sensor der Android-App oder eine beliebige media_player-Entität (Spotify, Music Assistant, Plex, Sonos, ...).",
+          "packages": "Kommagetrennte Android-Pakete, die bei einem Companion-Sensor gelesen werden. Bei media_player-Entitäten ignoriert.",
+          "only_when_playing": "Pausierte, gestoppte oder inaktive Sitzungen ignorieren.",
+          "min_play_seconds": "So lange warten und denselben Künstler erneut prüfen, bevor er hinzugefügt wird. 0 fügt sofort hinzu.",
+          "root_folder": "Lidarr-Stammordner für neue Künstler.",
+          "quality_profile_id": "Qualitätsprofil für neue Künstler.",
+          "metadata_profile_id": "Metadatenprofil für neue Künstler.",
+          "monitor": "Welche Alben eines neu hinzugefügten Künstlers überwacht werden.",
+          "search_missing_albums": "Direkt nach dem Hinzufügen nach fehlenden Alben suchen. Das kann viele Downloads auslösen.",
+          "match_strategy": "Exakt verlangt eine passende Künstlername-Übereinstimmung. Erster Treffer vertraut der Lidarr-Suche, was ungenauer ist.",
+          "dry_run": "Nur protokollieren, was hinzugefügt würde, ohne Lidarr zu ändern.",
+          "notify_on_add": "Eine persistente Benachrichtigung anzeigen, wenn ein Künstler hinzugefügt wird.",
+          "ignored_artists": "Ein Künstler pro Zeile (oder kommagetrennt), der nie hinzugefügt werden soll."
+        }
+      },
+      "reauth_confirm": {
+        "title": "Lidarr Media Sync erneut verbinden",
+        "description": "Lidarr hat den gespeicherten API-Schlüssel abgelehnt. Gib eine gültige URL und einen Schlüssel ein.",
+        "data": {
+          "url": "Lidarr-URL",
+          "api_key": "API-Schlüssel"
+        }
+      }
+    },
+    "error": {
+      "invalid_auth": "Lidarr hat den API-Schlüssel abgelehnt.",
+      "cannot_connect": "Lidarr ist nicht erreichbar. Prüfe die URL und ob Home Assistant Lidarr erreichen kann.",
+      "no_root_folder": "Lidarr hat keinen Stammordner. Lege in Lidarr unter Einstellungen → Medienverwaltung einen an und versuche es erneut.",
+      "unknown": "Unerwarteter Fehler. Prüfe das Home-Assistant-Protokoll."
+    },
+    "abort": {
+      "already_configured": "Diese Lidarr-Instanz und dieser Sensor sind bereits eingerichtet.",
+      "reauth_successful": "Die erneute Authentifizierung war erfolgreich.",
+      "reauth_failed": "Der Konfigurationseintrag existiert nicht mehr."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Lidarr Media Sync – Optionen",
+        "description": "Medienquelle, Künstlerabgleich und Lidarr-Standardwerte ändern.",
+        "data": {
+          "entity_id": "Medienquelle",
+          "packages": "Android-Pakete der Medien-Apps",
+          "only_when_playing": "Nur bei Wiedergabe",
+          "min_play_seconds": "Bestätigungsverzögerung",
+          "root_folder": "Stammordner",
+          "quality_profile_id": "Qualitätsprofil",
+          "metadata_profile_id": "Metadatenprofil",
+          "monitor": "Alben überwachen",
+          "search_missing_albums": "Nach fehlenden Alben suchen",
+          "match_strategy": "Künstlerabgleich",
+          "dry_run": "Trockenlauf",
+          "notify_on_add": "Benachrichtigung erstellen",
+          "ignored_artists": "Ignorierte Künstler"
+        },
+        "data_description": {
+          "entity_id": "Der Media-session-Sensor der Android-App oder eine beliebige media_player-Entität (Spotify, Music Assistant, Plex, Sonos, ...).",
+          "packages": "Kommagetrennte Android-Pakete, die bei einem Companion-Sensor gelesen werden. Bei media_player-Entitäten ignoriert.",
+          "only_when_playing": "Pausierte, gestoppte oder inaktive Sitzungen ignorieren.",
+          "min_play_seconds": "So lange warten und denselben Künstler erneut prüfen, bevor er hinzugefügt wird. 0 fügt sofort hinzu.",
+          "root_folder": "Lidarr-Stammordner für neue Künstler.",
+          "quality_profile_id": "Qualitätsprofil für neue Künstler.",
+          "metadata_profile_id": "Metadatenprofil für neue Künstler.",
+          "monitor": "Welche Alben eines neu hinzugefügten Künstlers überwacht werden.",
+          "search_missing_albums": "Direkt nach dem Hinzufügen nach fehlenden Alben suchen.",
+          "match_strategy": "Exakt verlangt eine passende Künstlername-Übereinstimmung. Erster Treffer vertraut der Lidarr-Suche.",
+          "dry_run": "Nur protokollieren, was hinzugefügt würde, ohne Lidarr zu ändern.",
+          "notify_on_add": "Eine persistente Benachrichtigung anzeigen, wenn ein Künstler hinzugefügt wird.",
+          "ignored_artists": "Ein Künstler pro Zeile (oder kommagetrennt), der nie hinzugefügt werden soll."
+        }
+      }
+    },
+    "error": {
+      "invalid_auth": "Lidarr hat den API-Schlüssel abgelehnt.",
+      "cannot_connect": "Lidarr ist nicht erreichbar.",
+      "unknown": "Unerwarteter Fehler. Prüfe das Home-Assistant-Protokoll."
+    }
+  },
+  "entity": {
+    "sensor": {
+      "last_added": {
+        "name": "Zuletzt hinzugefügter Künstler"
+      }
+    },
+    "binary_sensor": {
+      "connected": {
+        "name": "Lidarr-Verbindung"
+      }
+    },
+    "switch": {
+      "enabled": {
+        "name": "Automatischer Abgleich"
+      }
+    }
+  }
+}

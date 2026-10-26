@@ -1,0 +1,48 @@
+add_artist:
+  name: Add artist
+  description: >-
+    Add an artist to Lidarr as if it had just been detected in the configured
+    media source. This ignores the pause switch and the ignored-artist list.
+  fields:
+    artist:
+      name: Artist
+      description: Artist name to search for in Lidarr.
+      required: true
+      example: JENNIE
+      selector:
+        text: {}
+    album:
+      name: Album
+      description: Optional album name, stored in the sensor attributes and included in the added event.
+      example: Fallen Angel
+      selector:
+        text: {}
+    entry_id:
+      name: Config entry
+      description: Target a specific config entry when more than one is configured.
+      selector:
+        text: {}
+
+sync_now:
+  name: Sync now
+  description: >-
+    Read the configured media source immediately and process the current
+    artist, bypassing the seen-artist cache.
+  fields:
+    entry_id:
+      name: Config entry
+      description: Target a specific config entry when more than one is configured.
+      selector:
+        text: {}
+
+reset_history:
+  name: Reset history
+  description: >-
+    Forget which artists were already seen. Artists that were not found or
+    failed before will be looked up again.
+  fields:
+    entry_id:
+      name: Config entry
+      description: Target a specific config entry when more than one is configured.
+      selector:
+        text: {}

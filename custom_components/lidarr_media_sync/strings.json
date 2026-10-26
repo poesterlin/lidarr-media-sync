@@ -1,0 +1,127 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Connect to Lidarr",
+        "description": "Enter the address of your Lidarr instance. The API key is under **Settings → General → Security** in Lidarr.",
+        "data": {
+          "url": "Lidarr URL",
+          "api_key": "API key"
+        }
+      },
+      "settings": {
+        "title": "Media source and defaults",
+        "description": "Pick the Android companion **Media session** sensor or any `media_player` entity (Spotify, Music Assistant, Plex, Sonos, ...), then choose how artists should be added to Lidarr.",
+        "data": {
+          "entity_id": "Media source",
+          "packages": "Android media app packages",
+          "only_when_playing": "Only when playing",
+          "min_play_seconds": "Confirmation delay",
+          "root_folder": "Root folder",
+          "quality_profile_id": "Quality profile",
+          "metadata_profile_id": "Metadata profile",
+          "monitor": "Monitor albums",
+          "search_missing_albums": "Search for missing albums",
+          "match_strategy": "Artist matching",
+          "dry_run": "Dry run",
+          "notify_on_add": "Create a persistent notification",
+          "ignored_artists": "Ignored artists"
+        },
+        "data_description": {
+          "entity_id": "The Android companion Media session sensor, or any media_player entity (Spotify, Music Assistant, Plex, Sonos, ...).",
+          "packages": "Comma-separated Android packages to read when the source is a companion sensor. Ignored for media_player entities.",
+          "only_when_playing": "Ignore sessions that are paused, stopped or idle.",
+          "min_play_seconds": "Wait this long and re-check the same artist before adding. 0 adds immediately.",
+          "root_folder": "Lidarr root folder for new artists.",
+          "quality_profile_id": "Quality profile for new artists.",
+          "metadata_profile_id": "Metadata profile for new artists.",
+          "monitor": "Which albums of a newly added artist should be monitored.",
+          "search_missing_albums": "Also start a search for missing albums right after adding. This can trigger many downloads.",
+          "match_strategy": "Exact requires a matching artist name. First trusts Lidarr's search order, which is fuzzier.",
+          "dry_run": "Log what would be added without changing Lidarr.",
+          "notify_on_add": "Show a persistent notification when an artist is added.",
+          "ignored_artists": "One artist per line (or comma-separated) that should never be added."
+        }
+      },
+      "reauth_confirm": {
+        "title": "Reconnect Lidarr Media Sync",
+        "description": "Lidarr rejected the stored API key. Enter a valid URL and key.",
+        "data": {
+          "url": "Lidarr URL",
+          "api_key": "API key"
+        }
+      }
+    },
+    "error": {
+      "invalid_auth": "Lidarr rejected the API key.",
+      "cannot_connect": "Could not connect to Lidarr. Check the URL and that Home Assistant can reach it.",
+      "no_root_folder": "Lidarr has no root folder. Add one in Lidarr under Settings → Media Management, then try again.",
+      "unknown": "Unexpected error. Check the Home Assistant log."
+    },
+    "abort": {
+      "already_configured": "This Lidarr instance and sensor are already configured.",
+      "reauth_successful": "Reauthentication was successful.",
+      "reauth_failed": "The config entry no longer exists."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Lidarr Media Sync options",
+        "description": "Change the watched media source, matching and Lidarr defaults.",
+        "data": {
+          "entity_id": "Media source",
+          "packages": "Android media app packages",
+          "only_when_playing": "Only when playing",
+          "min_play_seconds": "Confirmation delay",
+          "root_folder": "Root folder",
+          "quality_profile_id": "Quality profile",
+          "metadata_profile_id": "Metadata profile",
+          "monitor": "Monitor albums",
+          "search_missing_albums": "Search for missing albums",
+          "match_strategy": "Artist matching",
+          "dry_run": "Dry run",
+          "notify_on_add": "Create a persistent notification",
+          "ignored_artists": "Ignored artists"
+        },
+        "data_description": {
+          "entity_id": "The Android companion Media session sensor, or any media_player entity (Spotify, Music Assistant, Plex, Sonos, ...).",
+          "packages": "Comma-separated Android packages to read when the source is a companion sensor. Ignored for media_player entities.",
+          "only_when_playing": "Ignore sessions that are paused, stopped or idle.",
+          "min_play_seconds": "Wait this long and re-check the same artist before adding. 0 adds immediately.",
+          "root_folder": "Lidarr root folder for new artists.",
+          "quality_profile_id": "Quality profile for new artists.",
+          "metadata_profile_id": "Metadata profile for new artists.",
+          "monitor": "Which albums of a newly added artist should be monitored.",
+          "search_missing_albums": "Also start a search for missing albums right after adding.",
+          "match_strategy": "Exact requires a matching artist name. First trusts Lidarr's search order.",
+          "dry_run": "Log what would be added without changing Lidarr.",
+          "notify_on_add": "Show a persistent notification when an artist is added.",
+          "ignored_artists": "One artist per line (or comma-separated) that should never be added."
+        }
+      }
+    },
+    "error": {
+      "invalid_auth": "Lidarr rejected the API key.",
+      "cannot_connect": "Could not connect to Lidarr.",
+      "unknown": "Unexpected error. Check the Home Assistant log."
+    }
+  },
+  "entity": {
+    "sensor": {
+      "last_added": {
+        "name": "Last added artist"
+      }
+    },
+    "binary_sensor": {
+      "connected": {
+        "name": "Lidarr connection"
+      }
+    },
+    "switch": {
+      "enabled": {
+        "name": "Automatic sync"
+      }
+    }
+  }
+}

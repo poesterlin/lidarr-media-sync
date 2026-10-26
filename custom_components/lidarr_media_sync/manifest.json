@@ -1,0 +1,12 @@
+{
+  "domain": "lidarr_media_sync",
+  "name": "Lidarr Media Sync",
+  "codeowners": ["@poesterlin"],
+  "config_flow": true,
+  "documentation": "https://github.com/poesterlin/lidarr-media-sync",
+  "integration_type": "service",
+  "iot_class": "local_push",
+  "issue_tracker": "https://github.com/poesterlin/lidarr-media-sync/issues",
+  "requirements": [],
+  "version": "0.1.0"
+}
