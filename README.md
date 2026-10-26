@@ -92,7 +92,8 @@ The setup flow has two steps.
 | API key | From Lidarr's security settings. |
 
 The URL is validated and the root folder and profile lists are loaded from
-Lidarr.
+Lidarr. The field is prefilled from Home Assistant's own internal host on port
+`8686`; change it if Lidarr runs on another machine.
 
 **Step 2 — sensor and defaults**
 
