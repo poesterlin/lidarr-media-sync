@@ -10,6 +10,7 @@ from urllib.parse import urlparse
 import voluptuous as vol
 from homeassistant.config_entries import (
     ConfigEntry,
+    ConfigEntryState,
     ConfigFlow,
     ConfigFlowResult,
     OptionsFlow,
@@ -446,6 +447,70 @@ class LidarrMediaSyncConfigFlow(ConfigFlow, domain="lidarr_media_sync"):
                         selector.TextSelectorConfig(type=selector.TextSelectorType.URL)
                     ),
                     vol.Required(CONF_API_KEY): selector.TextSelector(
+                        selector.TextSelectorConfig(
+                            type=selector.TextSelectorType.PASSWORD
+                        )
+                    ),
+                }
+            ),
+            errors=errors,
+        )
+
+    # ------------------------------------------------------------------
+    # Reconfiguration
+    # ------------------------------------------------------------------
+    async def async_step_reconfigure(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        """Change the Lidarr URL or API key of an existing entry."""
+        errors: dict[str, str] = {}
+        entry = self._get_reconfigure_entry()
+        url = entry.data[CONF_URL]
+
+        if user_input is not None:
+            url = str(user_input[CONF_URL]).strip().rstrip("/")
+            api_key = (
+                str(user_input.get(CONF_API_KEY) or "").strip()
+                or entry.data[CONF_API_KEY]
+            )
+            client = LidarrClient(async_get_clientsession(self.hass), url, api_key)
+            try:
+                await client.async_get_system_status()
+            except LidarrAuthError:
+                errors["base"] = "invalid_auth"
+            except (LidarrConnectionError, LidarrError):
+                errors["base"] = "cannot_connect"
+            except Exception:
+                _LOGGER.exception("Unexpected error while validating Lidarr")
+                errors["base"] = "unknown"
+            else:
+                entity_id = entry.options.get(CONF_ENTITY_ID)
+                unique_id = f"{url}|{entity_id}" if entity_id else entry.unique_id
+                if any(
+                    other.entry_id != entry.entry_id and other.unique_id == unique_id
+                    for other in self._async_current_entries()
+                ):
+                    return self.async_abort(reason="already_configured")
+
+                changed = self.hass.config_entries.async_update_entry(
+                    entry,
+                    data={**entry.data, CONF_URL: url, CONF_API_KEY: api_key},
+                    unique_id=unique_id,
+                )
+                # A loaded entry reloads itself through its update listener. One
+                # that failed to set up has no listener, so reload it here.
+                if not changed or entry.state is not ConfigEntryState.LOADED:
+                    self.hass.config_entries.async_schedule_reload(entry.entry_id)
+                return self.async_abort(reason="reconfigure_successful")
+
+        return self.async_show_form(
+            step_id="reconfigure",
+            data_schema=vol.Schema(
+                {
+                    vol.Required(CONF_URL, default=url): selector.TextSelector(
+                        selector.TextSelectorConfig(type=selector.TextSelectorType.URL)
+                    ),
+                    vol.Optional(CONF_API_KEY): selector.TextSelector(
                         selector.TextSelectorConfig(
                             type=selector.TextSelectorType.PASSWORD
                         )

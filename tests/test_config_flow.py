@@ -2,6 +2,9 @@
 
 from __future__ import annotations
 
+from unittest.mock import patch
+
+import pytest
 import voluptuous as vol
 from homeassistant import config_entries
 from homeassistant.data_entry_flow import FlowResultType
@@ -30,23 +33,23 @@ BASE_URL = "http://lidarr.local:8686"
 ENTITY_ID = "sensor.pixel_media_session"
 
 
-def _mock_lidarr(aioclient_mock) -> None:
+def _mock_lidarr(aioclient_mock, base_url: str = BASE_URL) -> None:
     aioclient_mock.get(
-        f"{BASE_URL}/api/v1/system/status", json={"version": "3.1.0.4875"}
+        f"{base_url}/api/v1/system/status", json={"version": "3.1.0.4875"}
     )
     aioclient_mock.get(
-        f"{BASE_URL}/api/v1/rootfolder",
+        f"{base_url}/api/v1/rootfolder",
         json=[{"id": 4, "name": "ingest", "path": "/music-ingest"}],
     )
     aioclient_mock.get(
-        f"{BASE_URL}/api/v1/qualityprofile",
+        f"{base_url}/api/v1/qualityprofile",
         json=[
             {"id": 1, "name": "Any"},
             {"id": 2, "name": "Lossless"},
         ],
     )
     aioclient_mock.get(
-        f"{BASE_URL}/api/v1/metadataprofile",
+        f"{base_url}/api/v1/metadataprofile",
         json=[{"id": 1, "name": "Standard"}],
     )
 
@@ -246,3 +249,119 @@ async def test_options_flow(hass, aioclient_mock):
     assert result["type"] is FlowResultType.CREATE_ENTRY
     assert result["data"][CONF_DRY_RUN] is True
     assert result["data"][CONF_MONITOR] == "future"
+
+
+NEW_URL = "https://lidarr.example.org"
+
+
+def _existing_entry(hass, url=BASE_URL) -> MockConfigEntry:
+    entry = MockConfigEntry(
+        domain=DOMAIN,
+        title="Lidarr Media Sync",
+        data={CONF_URL: url, CONF_API_KEY: "old-key"},
+        options=_settings_input(),
+        unique_id=f"{url}|{ENTITY_ID}",
+    )
+    entry.add_to_hass(hass)
+    return entry
+
+
+async def _start_reconfigure(hass, entry):
+    return await hass.config_entries.flow.async_init(
+        DOMAIN,
+        context={
+            "source": config_entries.SOURCE_RECONFIGURE,
+            "entry_id": entry.entry_id,
+        },
+    )
+
+
+@pytest.mark.parametrize(
+    ("key_input", "expected_key"),
+    [({}, "old-key"), ({CONF_API_KEY: "  "}, "old-key"), ({CONF_API_KEY: "n"}, "n")],
+)
+async def test_reconfigure_changes_url(hass, aioclient_mock, key_input, expected_key):
+    """The URL can be changed, keeping the stored key unless a new one is given."""
+    entry = _existing_entry(hass)
+    aioclient_mock.get(f"{NEW_URL}/api/v1/system/status", json={"version": "3.1"})
+
+    result = await _start_reconfigure(hass, entry)
+    assert result["type"] is FlowResultType.FORM
+    assert result["step_id"] == "reconfigure"
+
+    with patch.object(hass.config_entries, "async_schedule_reload") as reload:
+        result = await hass.config_entries.flow.async_configure(
+            result["flow_id"], {CONF_URL: NEW_URL + "/", **key_input}
+        )
+
+    assert result["type"] is FlowResultType.ABORT
+    assert result["reason"] == "reconfigure_successful"
+    assert entry.data == {CONF_URL: NEW_URL, CONF_API_KEY: expected_key}
+    assert entry.unique_id == f"{NEW_URL}|{ENTITY_ID}"
+    # The entry never loaded, so the flow has to schedule the reload itself.
+    reload.assert_called_once_with(entry.entry_id)
+    assert aioclient_mock.mock_calls[-1][3]["X-Api-Key"] == expected_key
+
+
+@pytest.mark.parametrize(
+    ("status", "error"), [(401, "invalid_auth"), (500, "cannot_connect")]
+)
+async def test_reconfigure_keeps_entry_on_error(hass, aioclient_mock, status, error):
+    """A failed check shows an error and leaves the entry untouched."""
+    entry = _existing_entry(hass)
+    aioclient_mock.get(f"{NEW_URL}/api/v1/system/status", status=status)
+
+    result = await _start_reconfigure(hass, entry)
+    result = await hass.config_entries.flow.async_configure(
+        result["flow_id"], {CONF_URL: NEW_URL}
+    )
+
+    assert result["type"] is FlowResultType.FORM
+    assert result["errors"] == {"base": error}
+    assert entry.data == {CONF_URL: BASE_URL, CONF_API_KEY: "old-key"}
+
+
+async def test_reconfigure_rejects_duplicate(hass, aioclient_mock):
+    """Two entries cannot end up with the same URL and media source."""
+    entry = _existing_entry(hass)
+    _existing_entry(hass, NEW_URL)
+    aioclient_mock.get(f"{NEW_URL}/api/v1/system/status", json={"version": "3.1"})
+
+    result = await _start_reconfigure(hass, entry)
+    result = await hass.config_entries.flow.async_configure(
+        result["flow_id"], {CONF_URL: NEW_URL}
+    )
+
+    assert result["type"] is FlowResultType.ABORT
+    assert result["reason"] == "already_configured"
+    assert entry.data[CONF_URL] == BASE_URL
+
+
+async def test_reconfigure_reloads_running_entry_once(hass, aioclient_mock):
+    """A loaded entry is reloaded exactly once and talks to the new URL."""
+    for url in (BASE_URL, NEW_URL):
+        _mock_lidarr(aioclient_mock, url)
+        aioclient_mock.get(f"{url}/api/v1/artist", json=[])
+    entry = _existing_entry(hass)
+    assert await hass.config_entries.async_setup(entry.entry_id)
+    await hass.async_block_till_done()
+    assert entry.state is config_entries.ConfigEntryState.LOADED
+    old_manager = entry.runtime_data
+
+    result = await _start_reconfigure(hass, entry)
+    with patch.object(
+        hass.config_entries, "async_reload", wraps=hass.config_entries.async_reload
+    ) as reload:
+        result = await hass.config_entries.flow.async_configure(
+            result["flow_id"], {CONF_URL: NEW_URL}
+        )
+        await hass.async_block_till_done()
+
+    assert result["reason"] == "reconfigure_successful"
+    assert reload.call_count == 1
+    assert entry.state is config_entries.ConfigEntryState.LOADED
+    assert entry.runtime_data is not old_manager
+    assert any(
+        str(call[1]).startswith(NEW_URL) for call in aioclient_mock.mock_calls[-5:]
+    )
+    assert await hass.config_entries.async_unload(entry.entry_id)

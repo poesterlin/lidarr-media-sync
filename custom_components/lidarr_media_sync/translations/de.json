@@ -43,6 +43,14 @@
           "ignored_artists": "Ein Künstler pro Zeile (oder kommagetrennt), der nie hinzugefügt werden soll."
         }
       },
+      "reconfigure": {
+        "title": "Lidarr-Verbindung neu konfigurieren",
+        "description": "Ändere die Adresse deiner Lidarr-Instanz. Lass den API-Schlüssel leer, um den aktuellen zu behalten.",
+        "data": {
+          "url": "Lidarr-URL",
+          "api_key": "API-Schlüssel"
+        }
+      },
       "reauth_confirm": {
         "title": "Lidarr Media Sync erneut verbinden",
         "description": "Lidarr hat den gespeicherten API-Schlüssel abgelehnt. Gib eine gültige URL und einen Schlüssel ein.",
@@ -61,7 +69,8 @@
     "abort": {
       "already_configured": "Diese Lidarr-Instanz und dieser Sensor sind bereits eingerichtet.",
       "reauth_successful": "Die erneute Authentifizierung war erfolgreich.",
-      "reauth_failed": "Der Konfigurationseintrag existiert nicht mehr."
+      "reauth_failed": "Der Konfigurationseintrag existiert nicht mehr.",
+      "reconfigure_successful": "Die Lidarr-Verbindung wurde aktualisiert."
     }
   },
   "options": {

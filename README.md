@@ -114,7 +114,9 @@ Lidarr. The field is prefilled from Home Assistant's own internal host on port
 | Ignored artists | empty | One name per line (or comma-separated) that is never added. |
 
 All options except the Lidarr URL and API key can be changed later with
-**Configure** on the integration card.
+**Configure** on the integration card. To change the URL or API key, open the
+integration entry's menu (three dots) and choose **Reconfigure**. Leave the API
+key empty to keep the current one.
 
 ### Matching
 

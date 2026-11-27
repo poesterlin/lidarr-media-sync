@@ -43,6 +43,14 @@
           "ignored_artists": "One artist per line (or comma-separated) that should never be added."
         }
       },
+      "reconfigure": {
+        "title": "Reconfigure Lidarr connection",
+        "description": "Change the address of your Lidarr instance. Leave the API key empty to keep the current one.",
+        "data": {
+          "url": "Lidarr URL",
+          "api_key": "API key"
+        }
+      },
       "reauth_confirm": {
         "title": "Reconnect Lidarr Media Sync",
         "description": "Lidarr rejected the stored API key. Enter a valid URL and key.",
@@ -61,7 +69,8 @@
     "abort": {
       "already_configured": "This Lidarr instance and sensor are already configured.",
       "reauth_successful": "Reauthentication was successful.",
-      "reauth_failed": "The config entry no longer exists."
+      "reauth_failed": "The config entry no longer exists.",
+      "reconfigure_successful": "The Lidarr connection was updated."
     }
   },
   "options": {
